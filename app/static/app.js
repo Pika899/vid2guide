@@ -182,6 +182,9 @@ function renderVideos() {
     btn("transcribe").textContent = v.transcribed ? "Ritrascrivi" : "Trascrivi";
     btn("transcribe").classList.toggle("ghost", v.transcribed);
     btn("transcribe").disabled = active;
+    btn("transcribe").title = v.transcribed
+      ? "Rifà la trascrizione solo se hai cambiato qualità o nomi propri; altrimenti tiene quella che c'è."
+      : "";
     btn("guide").textContent = v.guide ? "Rifai la guida" : "Crea guida";
     btn("guide").disabled = active || !v.transcribed;
     btn("guide").title = v.transcribed ? "" : "Prima serve la trascrizione";
