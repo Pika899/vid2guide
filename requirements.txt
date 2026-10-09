@@ -1,0 +1,17 @@
+# Dipendenze Python della pipeline di trascrizione.
+#
+# ATTENZIONE: ffmpeg NON e' in questa lista perche' non e' un pacchetto Python.
+# E' una dipendenza di sistema e va installata a parte (vedi README.md).
+#
+# openai-whisper e' distribuito come sorgente (nessun wheel precompilato) ma e'
+# Python puro: si installa senza compilatore. Si porta dietro come transitive
+# numba, numpy, tiktoken, tqdm e more-itertools, quindi non vanno elencate qui.
+openai-whisper>=20250625
+
+# Il backend di calcolo su cui gira Whisper. Su Apple Silicon il wheel arm64
+# include gia' il supporto MPS; la pipeline usa comunque la CPU per default
+# (vedi la nota su --device nel README).
+torch>=2.4.0
+
+# Solo per scripts/md2pdf.py (guide di studio in PDF). Serve anche Chrome o Chromium.
+markdown>=3.5

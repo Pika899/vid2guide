@@ -1,0 +1,27 @@
+# Ambiente virtuale Python (si ricrea da requirements.txt)
+.venv/
+
+# Video sorgente: file pesanti, restano solo in locale
+input_videos/*
+!input_videos/.gitkeep
+
+# Lavorazione intermedia: audio estratto, chunk, risultati parziali
+temp_chunks/
+
+# Output della pipeline: derivano dai video di chi la usa, non si pubblicano
+transcriptions/
+output_summary/
+
+# Prompt Whisper specifici di singoli video (resta solo l'esempio)
+prompts/*
+!prompts/esempio.txt
+
+# Materiale locale dell'autore: non fa parte del tool
+CLAUDE.local.md
+scripts/pylibs/
+scripts/verify_punti_incerti.py
+
+# Artefatti Python e di sistema
+__pycache__/
+.DS_Store
+*.log
