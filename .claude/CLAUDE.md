@@ -18,6 +18,7 @@ con ripresa dopo interruzione.
 - `./transcriptions/` -> I `.txt` finali con timestamp, uno per video.
 - `./output_summary/` -> Le guide di studio in Markdown.
 - `./.venv/` -> Ambiente virtuale con whisper e torch.
+- `./app/` -> Interfaccia web locale (server, pagina, «Crea guida» via API). Test in `./tests/`.
 - `.claude/agents/video-processor.md` -> Subagent che lancia e sorveglia le run lunghe.
 - `.claude/skills/analyze-course/SKILL.md` -> Skill che produce le guide di studio.
 
@@ -69,8 +70,9 @@ file che uno silenziosamente incompleto.
 
 ## Linee Guida per l'Assistente (Claude)
 
-1. **Zero dipendenze cloud a pagamento:** solo strumenti locali open source
-   (`openai-whisper`, `ffmpeg`). L'audio non lascia il computer.
+1. **Trascrizione solo in locale:** `openai-whisper` e `ffmpeg`, nessun servizio cloud.
+   L'audio non lascia il computer. Solo la generazione delle guide dall'interfaccia
+   (`app/guide/`) usa un'API esterna, con la chiave dell'utente.
 2. **Precisione nei Timestamp:** mantenere sempre il formato `[HH:MM:SS]`. Nelle guide di
    studio ogni timestamp va **copiato dalla trascrizione, mai stimato**: un riferimento
    inventato manda nel punto sbagliato di un video da quattro ore e rende inutile la guida.

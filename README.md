@@ -1,118 +1,151 @@
 # vid2guide — da video a guide di studio
 
-Trasforma i video di un corso (anche da 3-4 ore l'uno) in **trascrizioni con timestamp**
-`[HH:MM:SS]` e, da lì, in **guide di studio navigabili**: indice cronologico dei momenti
-chiave, concetti spiegati dal docente, prompt e framework mostrati a lezione. Ogni
-riferimento rimanda al punto esatto del video.
+Trasforma i video di un corso (anche da 3-4 ore l'uno) in una **guida di studio in PDF**:
+riassunto, indice cronologico per argomenti, concetti spiegati dal docente, framework e
+**prompt mostrati a schermo, con il loro screenshot e il testo pronto da copiare**. Ogni
+riferimento porta il timestamp `[HH:MM:SS]` del punto esatto del video.
 
-La **trascrizione** gira interamente in locale: nessun servizio cloud, nessuna API key,
-nessun costo per minuto trascritto, e l'audio non lascia il computer. La **guida di studio**
-è l'unico passaggio che richiede [Claude Code](https://claude.com/claude-code) (vedi sezione 7).
+Si usa dal browser, con un doppio clic: niente terminale.
 
 ```
-input_videos/ ──ffmpeg──▶ audio 16 kHz ──taglio sui silenzi──▶ chunk
-                                                                 │
-                                                              Whisper
-                                                                 │
-                                              transcriptions/<nome>.txt
-                                                                 │
-                                          Claude Code + skill analyze-course
-                                                                 │
-                                                output_summary/<nome>.md ──▶ PDF
+I tuoi video ──▶ Trascrivi (sul tuo computer, gratis) ──▶ Crea guida (con la tua chiave API) ──▶ PDF
 ```
+
+- La **trascrizione** gira interamente sul tuo computer con Whisper: nessun costo, e
+  l'audio non esce mai dal computer.
+- La **guida** è scritta da un modello di intelligenza artificiale, **Claude (Anthropic)**
+  o **ChatGPT (OpenAI)**, con la **tua** chiave API: paghi tu il consumo direttamente al
+  servizio scelto. Per farlo, il testo della trascrizione e alcuni fotogrammi del video
+  vengono inviati a quel servizio.
 
 ## Cosa ti serve
 
-| Cosa | Per cosa | Obbligatorio |
-|---|---|---|
-| **I tuoi video** in `input_videos/` | Il materiale da elaborare. Il repo non ne contiene. | Sì |
-| **Python 3.10+** | Pipeline e Whisper | Sì |
-| **FFmpeg** (di sistema, non pip) | Estrazione audio e taglio | Sì |
-| ~1 GB per le dipendenze + spazio per i temporanei (~4 GB per 14 ore di video) | PyTorch, audio estratto | Sì |
-| Connessione internet al **primo avvio** | Scarica il modello Whisper (~140 MB per `base`, ~460 MB per `small`) | Sì, una volta |
-| **Claude Code** | Solo per generare le guide di studio dalle trascrizioni | Solo per le guide |
-| **Chrome o Chromium** | Solo per esportare le guide in PDF | Solo per il PDF |
+| Cosa | Per cosa |
+|---|---|
+| Un Mac o un PC Windows 10/11 | — |
+| I tuoi video (`.mp4`, `.mov`, `.mkv`, …) | Il materiale da elaborare |
+| ~1,5 GB liberi per il programma (librerie ~0,9 GB, modello Whisper ~0,5 GB), più spazio per i temporanei (~4 GB per 14 ore di video) | Whisper, PyTorch, audio estratto |
+| Internet durante l'installazione e al primo avvio della trascrizione | Scarica i programmi e il modello Whisper (~460 MB) |
+| Una chiave API di [Anthropic](https://console.anthropic.com/settings/keys) **o** di [OpenAI](https://platform.openai.com/api-keys), con credito | Solo per creare le guide |
+| Chrome o Edge (Edge c'è già su ogni Windows) | Solo per il PDF |
 
-Non servono account, chiavi o token per la trascrizione.
+## Installazione (una volta sola)
 
-## Installazione automatica (consigliata)
+Scarica il progetto da GitHub (**Code → Download ZIP**), decomprimi la cartella dove vuoi
+tenerla e fai doppio clic sullo script del tuo sistema. Installa da solo ciò che manca e
+salta ciò che c'è già: puoi rilanciarlo senza problemi. Se qualcosa va storto, il
+dettaglio è in `install.log`.
 
-Scarica il progetto da GitHub (**Code → Download ZIP**, poi decomprimi) e lancia lo script
-del tuo sistema. Installa da solo tutto quello che manca e salta quello che c'è già:
-puoi rilanciarlo senza problemi. Se qualcosa va storto, il dettaglio è in `install.log`.
+**macOS** — doppio clic su `install-mac.command`. Se macOS dice che il file «proviene da
+uno sviluppatore non identificato»: clic destro sul file → **Apri** → **Apri**. In
+alternativa, dal Terminale nella cartella: `bash install-mac.command`. Installa, se
+mancano, Homebrew (ti chiede la password del Mac), Python 3.12, FFmpeg e le librerie.
 
-**macOS** — doppio clic su `install-mac.command`.
+**Windows** — doppio clic su `install-windows.bat`. Se compare «Windows ha protetto il
+PC»: **Ulteriori informazioni** → **Esegui comunque**. Usa `winget`, già presente su
+Windows 10/11 aggiornati (altrimenti installa «Programma di installazione app» dal
+Microsoft Store), e installa, se mancano, Python 3.12, FFmpeg e le librerie.
 
-Se macOS risponde che il file «proviene da uno sviluppatore non identificato», fai clic
-destro sul file → **Apri** → **Apri**. In alternativa, dal Terminale nella cartella:
+L'installazione scarica circa 1 GB e richiede qualche minuto.
+
+## Uso
+
+1. **Avvia**: doppio clic su `start-mac.command` (Mac) o `start-windows.bat` (Windows).
+   Si apre una finestra del terminale (lasciala aperta: chiuderla chiude vid2guide) e la
+   pagina di vid2guide nel browser.
+2. **Chiave API**: la prima volta, apri **Impostazioni** e incolla la chiave di Anthropic
+   o di OpenAI. Viene verificata e salvata nel portachiavi del sistema (Portachiavi su
+   Mac, Gestione credenziali su Windows), mai nei file del programma.
+3. **Aggiungi i video**: trascinali nella pagina, oppure usa «Apri la cartella video» e
+   copiali lì.
+4. **Trascrivi**: scegli la qualità («Precisa» è consigliata) e, se vuoi, scrivi i nomi
+   propri del corso (strumenti, persone, marchi): aiutano Whisper a scriverli giusti.
+   La pagina mostra l'avanzamento e il tempo stimato, misurato sulla velocità reale.
+5. **Crea guida**: scegli servizio e modello. Prima di partire vedi il costo della lettura
+   della trascrizione; alla fine, il costo effettivo calcolato dai token usati.
+6. **Apri PDF**: la guida è in `output_summary/`, con il nome della lezione. Accanto c'è
+   anche la versione Markdown e la cartella `img/` con gli screenshot.
+
+Puoi chiudere vid2guide in qualsiasi momento: il lavoro di trascrizione già fatto è salvo
+e, rilanciando, riparte da dove si era fermato.
+
+### Quanto tempo e quanto costa
+
+- **Trascrizione**: gratuita. Il tempo dipende dal computer; dal primo pezzo trascritto la
+  pagina mostra la stima del tempo rimanente, calcolata sulla velocità misurata.
+- **Guida**: il costo dipende dalla durata della lezione, dal modello e dal numero di
+  prompt mostrati a schermo (ogni prompt richiede la lettura di 4 fotogrammi). I prezzi
+  per milione di token usati dall'app sono in `app/guide/pricing.json`, con la data in cui
+  sono stati verificati. I modelli «più economici» costano circa la metà o meno.
+
+### Come la guida resta affidabile
+
+- I **timestamp sono controllati dal programma**: ogni riferimento proposto dal modello
+  viene confrontato con la trascrizione, e quelli che non corrispondono a nessun punto
+  vengono **eliminati** (mai spostati a un minuto stimato). La guida dice quanti ne ha
+  eliminati.
+- Il modello ha l'istruzione di **non aggiungere** conoscenze che il docente non ha detto
+  e di **segnalare** le parole trascritte male come `[trascrizione incerta: …]`.
+- I prompt a schermo sono trascritti dal fotogramma; se sono illeggibili o visibili solo in
+  parte la guida lo dice, invece di indovinarli.
+
+## Limiti noti
+
+Questa è una versione di prova. Cose da sapere:
+
+- **Windows**: l'installazione e l'app sono state scritte per Windows ma la prova completa
+  su un PC Windows è ancora in corso.
+- **Prima trascrizione**: scarica il modello Whisper (~460 MB), quindi parte più lenta.
+- **Velocità**: la trascrizione usa il processore (CPU). Su computer vecchi un corso
+  lungo può richiedere ore: conviene lasciarlo lavorare.
+- **Nomi propri**: Whisper sbaglia spesso nomi simili a parole comuni (per esempio
+  «Claude» diventa «cloud»). Il campo «Nomi propri e termini» aiuta ma non risolve del
+  tutto; la guida corregge dal contesto e lo dichiara.
+- **Screenshot**: vengono estratti al momento in cui il docente parla del prompt e nei
+  15 secondi successivi. Se il prompt compare molto dopo, la guida lo segnala come non
+  visibile: il timestamp resta, per guardarlo nel video. Al massimo 30 screenshot per guida.
+- **Video riservati**: per creare la guida, trascrizione e fotogrammi vengono inviati al
+  servizio scelto (Anthropic o OpenAI). Valuta se è accettabile per i tuoi contenuti.
+- **Uso lecito**: usa vid2guide solo su video che hai il diritto di elaborare (vedi sotto).
+
+## Per chi usa Claude Code o il terminale
+
+La pipeline si può usare anche senza interfaccia:
 
 ```bash
-bash install-mac.command
+.venv/bin/python main_pipeline.py --only "lezione.mp4" --model small      # macOS / Linux
+.venv\Scripts\python main_pipeline.py --only "lezione.mp4" --model small  # Windows
 ```
 
-Installa, se mancano: Homebrew (ti chiede la password del Mac), Python 3.12, FFmpeg e le
-dipendenze Python (~1 GB).
+> Senza `--only` la pipeline elabora **tutti** i video in `input_videos/`.
 
-**Windows 10/11** — doppio clic su `install-windows.bat`.
-
-Se compare «Windows ha protetto il PC», fai clic su **Ulteriori informazioni** →
-**Esegui comunque**. Usa `winget`, già presente su Windows 10/11 aggiornati (altrimenti
-installa «Programma di installazione app» dal Microsoft Store) e installa, se mancano:
-Python 3.12, FFmpeg e le dipendenze Python.
-
-Poi, per trascrivere: copia i video in `input_videos/` e lancia dalla cartella del progetto
-
-```bash
-.venv/bin/python main_pipeline.py --model small          # macOS
-.venv\Scripts\python main_pipeline.py --model small      # Windows (PowerShell)
-```
-
-Le trascrizioni arrivano in `transcriptions/<nome>.txt`.
-
-## Avvio rapido (installazione manuale)
-
-Se preferisci installare a mano, o sei su Linux:
-
-```bash
-# 1. FFmpeg (macOS; per Windows e Linux vedi sezione 1)
-brew install ffmpeg
-
-# 2. Ambiente Python
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 3. Metti i tuoi video in input_videos/ e lancia
-python main_pipeline.py --model small
-
-# 4. Il risultato è in transcriptions/<nome>.txt
-```
-
-Poi, per le guide di studio, apri la cartella con Claude Code e chiedi:
-*«usa la skill analyze-course sulla trascrizione `transcriptions/<nome>.txt`»*.
-
-> **Prima di lanciare:** senza `--only` la pipeline elabora **tutti** i video presenti in
-> `input_videos/`. Su un corso intero sono ore. Per una prova, usa un video breve o
-> `--only "nome.mp4"`.
+Con [Claude Code](https://claude.com/claude-code), aperta la cartella, la skill
+`analyze-course` produce la guida da una trascrizione: *«usa la skill analyze-course su
+`transcriptions/<nome>.txt`»*. Le sezioni tecniche qui sotto descrivono la pipeline nel
+dettaglio.
 
 ## Cosa contiene il repo
 
 ```
-main_pipeline.py          la pipeline (estrazione, chunking, Whisper, ricomposizione)
-install-mac.command       installazione automatica per macOS
-install-windows.bat       installazione automatica per Windows (avvia scripts/install-windows.ps1)
-requirements.txt          dipendenze Python
-scripts/md2pdf.py         Markdown → PDF (via Chrome headless, senza pandoc)
-prompts/esempio.txt       modello di initial-prompt per Whisper
-.claude/skills/analyze-course/   skill di Claude Code che produce le guide di studio
-.claude/agents/video-processor.md   agent che lancia e sorveglia le run lunghe
-.claude/CLAUDE.md         regole di lavoro per Claude Code su questo progetto
+start-mac.command / start-windows.bat     avvio dell'interfaccia (doppio clic)
+install-mac.command / install-windows.bat installazione (doppio clic)
+app/                      interfaccia locale: server, pagina, generazione delle guide
+  guide/system_prompt.md    le regole date al modello per scrivere la guida
+  guide/pricing.json        prezzi dei modelli usati per il calcolo dei costi
+main_pipeline.py          la pipeline di trascrizione (estrazione, chunking, Whisper)
+scripts/md2pdf.py         Markdown → PDF (via Chrome/Edge headless)
+tests/                    test automatici (pytest, senza chiamate a pagamento)
+.claude/                  skill e agent per chi usa Claude Code
 ```
 
 Le cartelle `input_videos/`, `temp_chunks/`, `transcriptions/` e `output_summary/` si
 riempiono sul tuo computer e **non sono versionate**.
 
 ---
+
+# Dettagli tecnici della pipeline
+
+Per chi installa a mano o vuole capire come funziona la trascrizione.
 
 ## 1. Installare FFmpeg
 
@@ -307,9 +340,9 @@ gli **stessi parametri** — modello, lingua e `--initial-prompt` — registrati
 
 `--force` resta utile solo per rigenerare tutto da zero a parità di parametri.
 
-## 7. Dalla trascrizione alla guida di studio
+## 7. Dalla trascrizione alla guida di studio (Claude Code)
 
-Questo passaggio usa [Claude Code](https://claude.com/claude-code), quindi **non è locale**:
+Senza interfaccia, questo passaggio usa [Claude Code](https://claude.com/claude-code), quindi **non è locale**:
 il testo della trascrizione viene letto da Claude. Se i tuoi video sono riservati, tienilo
 presente e valuta se usarlo.
 
