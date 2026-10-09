@@ -7,6 +7,8 @@ from pathlib import Path
 # A prompt is often typed or pasted while the teacher talks about it: sample the
 # moment itself and a few seconds after.
 OFFSETS = (0, 4, 9, 15)
+# Second look, used only when the first window does not show the prompt whole.
+LATER_OFFSETS = (20, 30, 45, 60)
 WIDTH = 1280
 
 
@@ -20,10 +22,11 @@ def extract(video: Path, seconds: float, out: Path) -> bool:
     return proc.returncode == 0 and out.is_file() and out.stat().st_size > 0
 
 
-def sample(video: Path, at: int, duration: float | None, workdir: Path) -> list[tuple[int, Path]]:
-    """Frames at `at` + OFFSETS (within the video). Returns (second, path) for those that worked."""
+def sample(video: Path, at: int, duration: float | None, workdir: Path,
+           offsets: tuple[int, ...] = OFFSETS) -> list[tuple[int, Path]]:
+    """Frames at `at` + offsets (within the video). Returns (second, path) for those that worked."""
     frames = []
-    for off in OFFSETS:
+    for off in offsets:
         t = at + off
         if duration is not None and t >= duration:
             break

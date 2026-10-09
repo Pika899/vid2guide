@@ -214,7 +214,8 @@ function renderVideos() {
       const m = v.guide_meta;
       msg.className = "video-msg small ok";
       msg.textContent = `Guida pronta: ${m.index_entries} voci nell'indice, ${m.screen_prompts} prompt a schermo. ` +
-        `Costo: ${fmtUsd(m.cost_usd)} (${m.input_tokens.toLocaleString("it")} token in entrata, ${m.output_tokens.toLocaleString("it")} in uscita).`;
+        `Costo: ${fmtUsd(m.cost_usd)} (${m.input_tokens.toLocaleString("it")} token in entrata, ${m.output_tokens.toLocaleString("it")} in uscita` +
+        (m.screenshots && m.screenshots.calls ? `; di cui screenshot: ${fmtUsd(m.screenshots.cost_usd)}` : "") + ").";
     } else if (state.messages[v.name]) {
       msg.className = "video-msg small err"; msg.textContent = state.messages[v.name];
     }

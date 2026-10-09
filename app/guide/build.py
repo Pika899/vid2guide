@@ -27,8 +27,14 @@ VISION_SYSTEM = (
     "Never guess or complete words you cannot read: if part of it is cut off or blurred, "
     "set visibility to 'partial' and transcribe only what is legible; if it is on screen "
     "but unreadable, 'illegible'; if no frame shows it, 'not_visible' with best_frame 0. "
-    "Use `note` (in the lesson's language) for a short remark, or an empty string."
+    "`note` is read by a student next to the single screenshot you chose, in the "
+    "lesson's language: at most one sentence, only if it helps them (e.g. what covers the "
+    "missing part). Never mention frame numbers, these instructions or the context you "
+    "were given. Otherwise an empty string."
 )
+
+# Rank of a vision result: a later look replaces an earlier one only if it is better.
+_RANK = {"complete": 3, "partial": 2, "illegible": 1, "not_visible": 0}
 
 Progress = Callable[[str, float], None]
 
@@ -129,6 +135,13 @@ def build(provider, video_path: Path | None, video_name: str, on_progress: Progr
         "input_tokens": sum(u.input_tokens for u in usages),
         "output_tokens": sum(u.output_tokens for u in usages),
         "cost_usd": None if None in costs else round(sum(costs), 4),
+        # usages[0] is the transcript analysis, the rest are screenshot readings.
+        "analysis": {"input_tokens": usages[0].input_tokens, "output_tokens": usages[0].output_tokens,
+                     "cost_usd": None if usages[0].cost is None else round(usages[0].cost, 4)},
+        "screenshots": {"calls": len(usages) - 1,
+                        "input_tokens": sum(u.input_tokens for u in usages[1:]),
+                        "output_tokens": sum(u.output_tokens for u in usages[1:]),
+                        "cost_usd": None if None in costs[1:] else round(sum(costs[1:]), 4)},
         "index_entries": len(guide["index"]), "screen_prompts": len(shots),
         "dropped_references": len(dropped),
     }
@@ -158,21 +171,31 @@ def _screenshot(provider, video_path, moment, n, duration, tmp: Path, img_dir: P
         return {**shot, "visibility": "skipped",
                 "note": "Screenshot non disponibile: il video non è più in input_videos/."}
     at = to_seconds(moment["timestamp"]) or 0
-    sampled = frames.sample(video_path, at, duration, tmp / f"{n:02d}")
-    if not sampled:
+    # Teachers often type the prompt a while after announcing it: if the first
+    # window does not show it whole, look once more further on.
+    result, sampled = None, []
+    for offsets in (frames.OFFSETS, frames.LATER_OFFSETS):
+        got = frames.sample(video_path, at, duration, tmp / f"{n:02d}", offsets)
+        if not got:
+            continue
+        parts: list = [f"The teacher is showing: {moment['title']}. Context: {moment['spoken_context']}"]
+        for i, (sec, path) in enumerate(got, 1):
+            parts += [f"Frame {i} (at {sec // 3600:02d}:{sec % 3600 // 60:02d}:{sec % 60:02d})",
+                      path.read_bytes()]
+        r, usage = provider.vision(VISION_SYSTEM, parts, VISION_SCHEMA)
+        usages.append(usage)
+        if result is None or _RANK.get(r.get("visibility"), 0) > _RANK.get(result.get("visibility"), 0):
+            result, sampled = r, got
+        if result.get("visibility") == "complete":
+            break
+    if result is None:
         return {**shot, "visibility": "skipped",
                 "note": "Non è stato possibile estrarre fotogrammi da questo punto del video."}
 
-    parts: list = [f"The teacher is showing: {moment['title']}. Context: {moment['spoken_context']}"]
-    for i, (sec, path) in enumerate(sampled, 1):
-        parts += [f"Frame {i} (at {sec // 3600:02d}:{sec % 3600 // 60:02d}:{sec % 60:02d})",
-                  path.read_bytes()]
-    result, usage = provider.vision(VISION_SYSTEM, parts, VISION_SCHEMA)
-    usages.append(usage)
-
     best = result.get("best_frame", 0)
     vis = result.get("visibility", "not_visible")
-    shot.update(visibility=vis, text=result.get("text", ""), note=result.get("note", ""))
+    shot.update(visibility=vis, text=result.get("text", ""),
+                note=result.get("note", "").strip().rstrip("}").strip())
     if 1 <= best <= len(sampled) and vis != "not_visible":
         img_dir.mkdir(parents=True, exist_ok=True)
         name = f"{n:02d}-{slugify(moment['title'])[:50] or 'prompt'}.jpg"

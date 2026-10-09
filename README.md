@@ -74,13 +74,17 @@ e, rilanciando, riparte da dove si era fermato.
 - **Trascrizione**: gratuita. Il tempo dipende dal computer; dal primo pezzo trascritto la
   pagina mostra la stima del tempo rimanente, calcolata sulla velocità misurata.
 - **Guida**: il costo dipende dalla durata della lezione, dal modello e dal numero di
-  prompt mostrati a schermo (ogni prompt richiede la lettura di 4 fotogrammi). I prezzi
+  prompt mostrati a schermo (ogni prompt richiede la lettura di 4 fotogrammi, 8 se serve la seconda ricerca). I prezzi
   per milione di token usati dall'app sono in `app/guide/pricing.json`, con la data in cui
   sono stati verificati. I modelli «più economici» costano circa la metà o meno.
-- **Un esempio misurato** (10 ottobre 2026): una registrazione di 29 minuti, senza prompt
-  mostrati a schermo, con Claude Sonnet 5.5 → 17.447 token in entrata e 7.064 in uscita,
-  **0,11 $**. Con Claude Opus 5.5 lo stesso consumo costerebbe il doppio. Lezioni più lunghe
-  e con molti prompt a schermo costano di più.
+- **Esempi misurati** (10 ottobre 2026, Claude Sonnet 5.5):
+  - registrazione di 29 minuti senza prompt a schermo: 17.447 token in entrata e 7.064 in
+    uscita, **0,11 $**;
+  - lezione di 19 minuti con 7 prompt a schermo: 49.703 token in entrata e 10.041 in
+    uscita, **0,20 $**.
+
+  Con Claude Opus 5.5 lo stesso consumo costa il doppio. Lezioni più lunghe e con più
+  prompt a schermo costano di più.
 
 ### Come la guida resta affidabile
 
@@ -105,9 +109,11 @@ Questa è una versione di prova. Cose da sapere:
 - **Nomi propri**: Whisper sbaglia spesso nomi simili a parole comuni (per esempio
   «Claude» diventa «cloud»). Il campo «Nomi propri e termini» aiuta ma non risolve del
   tutto; la guida corregge dal contesto e lo dichiara.
-- **Screenshot**: vengono estratti al momento in cui il docente parla del prompt e nei
-  15 secondi successivi. Se il prompt compare molto dopo, la guida lo segnala come non
-  visibile: il timestamp resta, per guardarlo nel video. Al massimo 30 screenshot per guida.
+- **Screenshot**: vengono cercati nei 15 secondi dopo il momento in cui il docente parla del
+  prompt e, se lì non si vede per intero, una seconda volta fino a 60 secondi dopo. Se
+  compare ancora più tardi, o è coperto (per esempio dalla webcam del docente), la guida lo
+  segnala come non visibile o parziale: il timestamp resta, per guardarlo nel video. Al
+  massimo 30 prompt per guida.
 - **Video riservati**: per creare la guida, trascrizione e fotogrammi vengono inviati al
   servizio scelto (Anthropic o OpenAI). Valuta se è accettabile per i tuoi contenuti.
 - **Uso lecito**: usa vid2guide solo su video che hai il diritto di elaborare (vedi sotto).
