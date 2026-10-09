@@ -57,9 +57,16 @@ say_step "2/5 Python"
 python_ok() {
   "$1" -c 'import sys; sys.exit(0 if (3,10) <= sys.version_info[:2] <= (3,13) else 1)' 2>/dev/null
 }
+# A Python inside another virtualenv must not become our base: .venv would
+# silently depend on that other project's environment.
+python_is_base() {
+  "$1" -c 'import sys; sys.exit(0 if sys.prefix == sys.base_prefix else 1)' 2>/dev/null
+}
 PY=""
 for cand in python3.13 python3.12 python3.11 python3.10 "$(brew --prefix)/bin/python3.12" python3; do
-  if command -v "$cand" >/dev/null 2>&1 && python_ok "$cand"; then PY="$(command -v "$cand")"; break; fi
+  if command -v "$cand" >/dev/null 2>&1 && python_ok "$cand" && python_is_base "$cand"; then
+    PY="$(command -v "$cand")"; break
+  fi
 done
 if [[ -z "$PY" ]]; then
   echo "    Nessun Python compatibile (serve 3.10-3.13). Installo Python 3.12..."

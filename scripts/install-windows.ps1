@@ -47,7 +47,8 @@ function Find-Python {
     # Skip the Microsoft Store alias in WindowsApps: it is a stub, not Python.
     $cmd = Get-Command python -ErrorAction SilentlyContinue
     if ($cmd -and $cmd.Source -notlike "*WindowsApps*") {
-        & $cmd.Source -c "import sys; sys.exit(0 if (3,10) <= sys.version_info[:2] <= (3,13) else 1)" 2>$null
+        # Also reject a python.exe that lives inside another virtualenv.
+        & $cmd.Source -c "import sys; sys.exit(0 if (3,10) <= sys.version_info[:2] <= (3,13) and sys.prefix == sys.base_prefix else 1)" 2>$null
         if ($LASTEXITCODE -eq 0) { return $cmd.Source }
     }
 }
