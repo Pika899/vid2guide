@@ -77,6 +77,10 @@ e, rilanciando, riparte da dove si era fermato.
   prompt mostrati a schermo (ogni prompt richiede la lettura di 4 fotogrammi). I prezzi
   per milione di token usati dall'app sono in `app/guide/pricing.json`, con la data in cui
   sono stati verificati. I modelli «più economici» costano circa la metà o meno.
+- **Un esempio misurato** (10 ottobre 2026): una registrazione di 29 minuti, senza prompt
+  mostrati a schermo, con Claude Sonnet 5.5 → 17.447 token in entrata e 7.064 in uscita,
+  **0,11 $**. Con Claude Opus 5.5 lo stesso consumo costerebbe il doppio. Lezioni più lunghe
+  e con molti prompt a schermo costano di più.
 
 ### Come la guida resta affidabile
 

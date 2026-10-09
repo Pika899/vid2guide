@@ -12,7 +12,9 @@ Write the guide in the language the lesson is spoken in.
 - `title`: the lesson title, as the teacher states it or as the content makes clear.
 - `summary`: 3-5 lines on what the lesson covers and who it is for. No timestamps.
 - `correction_note`: if you systematically corrected a recurring transcription error (see
-  below), one sentence stating the correction and why. Otherwise an empty string.
+  below), one sentence stating the correction and why, written impersonally ("«cloud» è
+  stato corretto in «Claude» dove si parla dello strumento"), never in the first person.
+  Otherwise an empty string.
 - `index`: chronological index of key moments — topic changes, the start of a demo, a new
   tool, a long question from the audience. One entry per real thematic block, not one every
   N minutes. A three-hour lesson typically has 15-30 entries.

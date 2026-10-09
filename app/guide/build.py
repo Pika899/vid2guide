@@ -51,9 +51,12 @@ def estimate(provider, video_name: str) -> dict:
 
 
 def _safe_filename(title: str, fallback: str) -> str:
-    name = re.sub(r'[\\/:*?"<>|\x00-\x1f]', " ", title).strip(" .")
-    name = " ".join(name.split())[:120]
-    return name or fallback
+    name = re.sub(r'[\\/:*?"<>|\x00-\x1f]', " ", title)
+    name = re.sub(r"\s*\([^)]*\)\s*$", "", name)          # drop a trailing "(...)" aside
+    name = " ".join(name.split())
+    if len(name) > 80:                                   # keep file names manageable
+        name = name[:80].rsplit(" ", 1)[0]
+    return name.strip(" .") or fallback
 
 
 def build(provider, video_path: Path | None, video_name: str, on_progress: Progress,

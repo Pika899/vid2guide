@@ -7,6 +7,8 @@ from pathlib import Path
 
 _LINE = re.compile(r"^\[(\d{2}):(\d{2}):(\d{2})\]\s?(.*)$")
 _TS = re.compile(r"^\[?\s*(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*\]?$")
+# H:MM:SS or HH:MM:SS inside prose (MM:SS alone is too ambiguous to police).
+_PROSE_TS = re.compile(r"(?<![\d:])\d{1,2}:\d{2}:\d{2}(?![\d:])")
 
 
 def to_seconds(ts: str) -> int | None:
@@ -86,8 +88,27 @@ def validate_guide(guide: dict, transcript: Transcript) -> tuple[dict, list[str]
         kept.sort(key=lambda i: to_seconds(i["timestamp"]))
         out[key] = kept
 
+    # Timestamps written inside free text get the same check: a valid one stays,
+    # an invented one is replaced, never nudged to a nearby segment.
+    def prose(text: str, where: str) -> str:
+        def repl(m: re.Match) -> str:
+            secs = to_seconds(m.group(0))
+            if secs is not None and secs in stamps:
+                return m.group(0)
+            dropped.append(f"{where}: «{m.group(0)}» nel testo")
+            return "(riferimento rimosso)"
+        return _PROSE_TS.sub(repl, text or "")
+
+    for key in ("summary", "correction_note", "title"):
+        out[key] = prose(guide.get(key, ""), key)
+    for key, fields in (("index", ("topic",)), ("screen_prompts", ("title", "spoken_context")),
+                        ("frameworks", ("title", "content")), ("to_verify", ("note",))):
+        out[key] = [{**i, **{f: prose(i.get(f, ""), key) for f in fields}} for i in out[key]]
+
     concepts = []
     for c in guide.get("concepts", []):
+        c = {**c, "title": prose(c.get("title", ""), "concetto"),
+             "explanation": prose(c.get("explanation", ""), "concetto")}
         good = sorted({t for t in (check(ts, f"concetto «{c.get('title', '')}»")
                                    for ts in c.get("timestamps", [])) if t},
                       key=to_seconds)

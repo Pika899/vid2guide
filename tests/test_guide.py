@@ -65,3 +65,27 @@ def test_render_layout_and_visibility_cases():
     assert "visibile solo in parte" in md
     assert "non è leggibile" in md and "non compare nei fotogrammi" in md
     assert "## Da verificare" in md and "1 riferimenti proposti" in md
+
+
+def test_validation_checks_timestamps_inside_prose():
+    raw = {"title": "T", "summary": "Vedi 00:00:05 e anche 00:07:00.", "correction_note": "",
+           "index": [{"timestamp": "00:00:00", "topic": "Intro (fino a 00:00:12)"}],
+           "concepts": [{"title": "C", "timestamps": ["00:00:05"], "explanation": "Torna a 0:00:41, non a 01:00:00."}],
+           "screen_prompts": [], "frameworks": [],
+           "to_verify": [{"timestamp": "00:00:20", "note": "segmenti 00:00:20-00:00:33 rovinati"}]}
+    guide, dropped = validate_guide(raw, _transcript())
+    assert guide["summary"] == "Vedi 00:00:05 e anche (riferimento rimosso)."
+    assert guide["index"][0]["topic"] == "Intro (fino a 00:00:12)"
+    assert guide["concepts"][0]["explanation"] == "Torna a 0:00:41, non a (riferimento rimosso)."
+    assert guide["to_verify"][0]["note"] == "segmenti 00:00:20-(riferimento rimosso) rovinati"
+    assert len(dropped) == 3
+
+
+def test_pdf_filename():
+    from app.guide.build import _safe_filename
+    long = "Lezione 3: come si costruisce un assistente virtuale per uno studio professionale (registrazione live)"
+    name = _safe_filename(long, "x")
+    assert name == "Lezione 3 come si costruisce un assistente virtuale per uno studio professionale"
+    assert len(name) <= 80
+    assert _safe_filename("  ...  ", "fallback") == "fallback"
+    assert _safe_filename("A/B: c?", "x") == "A B c"
