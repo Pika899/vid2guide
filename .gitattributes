@@ -1,0 +1,5 @@
+# Windows scripts need CRLF; the macOS script needs LF.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.command text eol=lf
+*.sh text eol=lf

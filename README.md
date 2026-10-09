@@ -35,7 +35,43 @@ input_videos/ ──ffmpeg──▶ audio 16 kHz ──taglio sui silenzi──�
 
 Non servono account, chiavi o token per la trascrizione.
 
-## Avvio rapido
+## Installazione automatica (consigliata)
+
+Scarica il progetto da GitHub (**Code → Download ZIP**, poi decomprimi) e lancia lo script
+del tuo sistema. Installa da solo tutto quello che manca e salta quello che c'è già:
+puoi rilanciarlo senza problemi. Se qualcosa va storto, il dettaglio è in `install.log`.
+
+**macOS** — doppio clic su `install-mac.command`.
+
+Se macOS risponde che il file «proviene da uno sviluppatore non identificato», fai clic
+destro sul file → **Apri** → **Apri**. In alternativa, dal Terminale nella cartella:
+
+```bash
+bash install-mac.command
+```
+
+Installa, se mancano: Homebrew (ti chiede la password del Mac), Python 3.12, FFmpeg e le
+dipendenze Python (~1 GB).
+
+**Windows 10/11** — doppio clic su `install-windows.bat`.
+
+Se compare «Windows ha protetto il PC», fai clic su **Ulteriori informazioni** →
+**Esegui comunque**. Usa `winget`, già presente su Windows 10/11 aggiornati (altrimenti
+installa «Programma di installazione app» dal Microsoft Store) e installa, se mancano:
+Python 3.12, FFmpeg e le dipendenze Python.
+
+Poi, per trascrivere: copia i video in `input_videos/` e lancia dalla cartella del progetto
+
+```bash
+.venv/bin/python main_pipeline.py --model small          # macOS
+.venv\Scripts\python main_pipeline.py --model small      # Windows (PowerShell)
+```
+
+Le trascrizioni arrivano in `transcriptions/<nome>.txt`.
+
+## Avvio rapido (installazione manuale)
+
+Se preferisci installare a mano, o sei su Linux:
 
 ```bash
 # 1. FFmpeg (macOS; per Windows e Linux vedi sezione 1)
@@ -63,6 +99,8 @@ Poi, per le guide di studio, apri la cartella con Claude Code e chiedi:
 
 ```
 main_pipeline.py          la pipeline (estrazione, chunking, Whisper, ricomposizione)
+install-mac.command       installazione automatica per macOS
+install-windows.bat       installazione automatica per Windows (avvia scripts/install-windows.ps1)
 requirements.txt          dipendenze Python
 scripts/md2pdf.py         Markdown → PDF (via Chrome headless, senza pandoc)
 prompts/esempio.txt       modello di initial-prompt per Whisper
