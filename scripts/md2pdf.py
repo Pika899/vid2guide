@@ -17,13 +17,17 @@ import markdown  # noqa: E402
 
 
 def find_chrome() -> str:
-    """Chrome/Chromium: variabile CHROME_PATH, poi i percorsi comuni, poi il PATH."""
+    """Chrome/Chromium/Edge: variabile CHROME_PATH, poi i percorsi comuni, poi il PATH."""
     candidates = [
         os.environ.get("CHROME_PATH"),
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        # Edge is Chromium-based and ships with every Windows 10/11.
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         shutil.which("google-chrome"),
         shutil.which("chromium"),
         shutil.which("chromium-browser"),
@@ -31,7 +35,7 @@ def find_chrome() -> str:
     for c in candidates:
         if c and Path(c).exists():
             return c
-    sys.exit("Chrome/Chromium non trovato: installalo oppure imposta CHROME_PATH.")
+    sys.exit("Chrome, Chromium o Edge non trovato: installane uno oppure imposta CHROME_PATH.")
 
 CSS = """
 @page { size: A4; margin: 20mm 18mm 18mm 18mm; }

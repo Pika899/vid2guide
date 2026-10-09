@@ -1,0 +1,13 @@
+{
+  "_note": "USD per 1M tokens. Update when providers change prices; the app shows costs computed from these values and the token counts returned by the API.",
+  "anthropic": {
+    "_verified": "2026-10-06, Anthropic first-party API price list",
+    "claude-opus-5-5": {"label": "Claude Opus 5.5 — massima qualità", "input": 4.0, "output": 20.0},
+    "claude-sonnet-5-5": {"label": "Claude Sonnet 5.5 — più economico", "input": 2.0, "output": 10.0}
+  },
+  "openai": {
+    "_verified": "2026-10-09, platform.openai.com/docs/models",
+    "gpt-6-astra": {"label": "GPT-6 Astra — massima qualità", "input": 10.0, "output": 50.0},
+    "gpt-6.1-sol": {"label": "GPT-6.1 Sol — più economico", "input": 2.0, "output": 10.0}
+  }
+}

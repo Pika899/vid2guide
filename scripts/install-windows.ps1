@@ -104,7 +104,7 @@ try {
     # --- 5. Final check -------------------------------------------------------
     Step "5/5 Verifica"
     $ErrorActionPreference = "Continue"
-    & $venvPy -c "import whisper, torch, markdown; print('    OK whisper + torch', torch.__version__)"
+    & $venvPy -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
     if ($LASTEXITCODE -ne 0) { throw "Verifica delle dipendenze non riuscita" }
     $ff = (& ffmpeg -version | Select-Object -First 1)
     $ErrorActionPreference = "Stop"
@@ -120,13 +120,13 @@ try {
     Write-Host "Installazione completata." -ForegroundColor Green
     Write-Host ""
     Write-Host "Come si usa:"
-    Write-Host "  1. Copia i tuoi video nella cartella input_videos\"
-    Write-Host "  2. Apri PowerShell in questa cartella e lancia:"
-    Write-Host "       .venv\Scripts\python main_pipeline.py --model small"
-    Write-Host "  3. Le trascrizioni arrivano in transcriptions\"
+    Write-Host "  1. Fai doppio clic su start-windows.bat: vid2guide si apre nel browser."
+    Write-Host "  2. Aggiungi i video, premi 'Trascrivi', poi 'Crea guida'."
+    Write-Host "     Per le guide serve una chiave API di Anthropic o OpenAI (Impostazioni)."
     Write-Host ""
-    Write-Host "Al primo avvio viene scaricato il modello Whisper (~460 MB per 'small'):"
-    Write-Host "serve internet una volta sola. Istruzioni complete nel README.md."
+    Write-Host "Al primo avvio della trascrizione viene scaricato il modello Whisper"
+    Write-Host "(~460 MB per la qualita' 'Precisa'): serve internet una volta sola."
+    Write-Host "Istruzioni complete nel README.md."
     exit 0
 }
 catch {

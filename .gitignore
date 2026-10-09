@@ -23,5 +23,6 @@ scripts/verify_punti_incerti.py
 
 # Artefatti Python e di sistema
 __pycache__/
+.pytest_cache/
 .DS_Store
 *.log

@@ -100,7 +100,7 @@ say_ok "dipendenze installate"
 
 # --- 5. Final check ---------------------------------------------------------
 say_step "5/5 Verifica"
-.venv/bin/python -c "import whisper, torch, markdown; print('    OK whisper + torch', torch.__version__)"
+.venv/bin/python -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
 ffmpeg -version 2>&1 | sed -n '1s/^/    OK /p'
 if [[ -d "/Applications/Google Chrome.app" || -d "/Applications/Chromium.app" ]]; then
   say_ok "Chrome trovato (serve per esportare le guide in PDF)"
@@ -114,13 +114,13 @@ cat <<'EOF'
 Installazione completata.
 
 Come si usa:
-  1. Copia i tuoi video nella cartella input_videos/
-  2. Apri il Terminale in questa cartella e lancia:
-       .venv/bin/python main_pipeline.py --model small
-  3. Le trascrizioni arrivano in transcriptions/
+  1. Fai doppio clic su start-mac.command: vid2guide si apre nel browser.
+  2. Aggiungi i video, premi «Trascrivi», poi «Crea guida».
+     Per le guide serve una chiave API di Anthropic o OpenAI (Impostazioni).
 
-Al primo avvio viene scaricato il modello Whisper (~460 MB per "small"):
-serve internet una volta sola. Istruzioni complete nel README.md.
+Al primo avvio della trascrizione viene scaricato il modello Whisper
+(~460 MB per la qualità «Precisa»): serve internet una volta sola.
+Istruzioni complete nel README.md.
 
 EOF
 read -r -p "Premi Invio per chiudere..." _ || true

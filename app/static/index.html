@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vid2guide</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">▶︎</span>
+      <div>
+        <h1>vid2guide</h1>
+        <p class="tagline">Dai video del corso a una guida di studio in PDF</p>
+      </div>
+    </div>
+    <button id="open-settings" class="btn ghost">Impostazioni</button>
+  </header>
+
+  <main>
+    <div id="session-error" class="banner error" hidden>
+      Sessione non valida. Chiudi questa pagina e riapri vid2guide dallo script di avvio.
+    </div>
+    <div id="no-key" class="banner" hidden>
+      Per creare le guide serve una chiave API di Anthropic o OpenAI.
+      <button class="link" data-action="settings">Aggiungila in Impostazioni</button>.
+    </div>
+
+    <section class="card" aria-labelledby="add-title">
+      <h2 id="add-title">1. Aggiungi i video</h2>
+      <div id="drop" class="drop" tabindex="0">
+        <p><strong>Trascina qui i video</strong> oppure</p>
+        <div class="row">
+          <label class="btn">Scegli file<input id="file-input" type="file" multiple accept="video/*,.mkv,.ts" hidden></label>
+          <button class="btn ghost" data-action="open-videos">Apri la cartella video</button>
+        </div>
+        <p id="upload-status" class="muted small" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="opt-title">
+      <h2 id="opt-title">2. Opzioni</h2>
+      <div class="grid">
+        <label class="field">
+          <span>Qualità della trascrizione</span>
+          <select id="quality">
+            <option value="accurate">Precisa (consigliata, più lenta)</option>
+            <option value="fast">Veloce</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Servizio per la guida</span>
+          <select id="provider"></select>
+        </label>
+        <label class="field">
+          <span>Modello</span>
+          <select id="model"></select>
+        </label>
+        <label class="field wide">
+          <span>Nomi propri e termini del corso <em class="muted">(facoltativo)</em></span>
+          <input id="terms" type="text" placeholder="es. Claude Code, Anthropic, Notion, Make">
+          <small class="muted">Aiuta la trascrizione a scrivere giusti i nomi. Tienilo breve.</small>
+        </label>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="list-title">
+      <div class="row between">
+        <h2 id="list-title">3. I tuoi video</h2>
+        <button class="btn ghost small" data-action="open-guides">Apri la cartella delle guide</button>
+      </div>
+      <ul id="videos" class="videos"></ul>
+      <p id="empty" class="muted" hidden>Nessun video ancora. Aggiungine uno qui sopra.</p>
+    </section>
+
+    <p class="privacy muted small">
+      La trascrizione avviene sul tuo computer: l'audio non esce mai. Per creare la guida,
+      il testo della trascrizione e alcuni fotogrammi del video vengono inviati al servizio
+      che scegli, con la tua chiave e a tue spese.
+    </p>
+  </main>
+
+  <dialog id="settings">
+    <form method="dialog" class="dialog">
+      <h2>Impostazioni</h2>
+      <p class="muted small">Le chiavi sono salvate nel portachiavi del sistema
+        (Portachiavi su Mac, Gestione credenziali su Windows), mai nei file del programma.</p>
+      <div id="key-list"></div>
+      <div class="row end"><button class="btn" value="close">Chiudi</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm">
+    <form method="dialog" class="dialog">
+      <h2>Creare la guida?</h2>
+      <div id="confirm-body"></div>
+      <div class="row end">
+        <button class="btn ghost" value="cancel">Annulla</button>
+        <button class="btn" value="ok" id="confirm-ok">Crea la guida</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="video-tpl">
+    <li class="video">
+      <div class="video-head">
+        <div>
+          <p class="video-name"></p>
+          <p class="video-meta muted small"></p>
+        </div>
+        <div class="chips"></div>
+      </div>
+      <div class="actions">
+        <button class="btn" data-act="transcribe">Trascrivi</button>
+        <button class="btn" data-act="guide">Crea guida</button>
+        <button class="btn ghost" data-act="pdf">Apri PDF</button>
+        <button class="btn ghost" data-act="transcript">Apri trascrizione</button>
+      </div>
+      <div class="job" hidden>
+        <div class="row between small"><span class="job-phase"></span><span class="job-eta muted"></span></div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div></div></div>
+        <button class="link small" data-act="cancel">Interrompi</button>
+      </div>
+      <p class="video-msg small" aria-live="polite"></p>
+    </li>
+  </template>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
