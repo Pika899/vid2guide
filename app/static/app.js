@@ -276,6 +276,67 @@ async function startGuide(v) {
   };
 }
 
+// --- Links ---------------------------------------------------------------
+
+const dismissed = new Set();
+
+function renderDownloads() {
+  const list = $("#downloads");
+  list.innerHTML = "";
+  for (const j of state.jobs.filter(j => j.kind === "download" && !dismissed.has(j.id))) {
+    const li = document.createElement("li");
+    li.className = "download small";
+    const url = document.createElement("span");
+    url.className = "url muted";
+    url.textContent = j.video;
+    li.append(url);
+    const line = document.createElement("div");
+    line.className = "row between";
+    const text = document.createElement("span");
+    line.append(text);
+    li.append(line);
+    if (["queued", "running"].includes(j.status)) {
+      text.textContent = j.status === "queued" ? "In attesa che finisca il lavoro in corso" : j.phase;
+      const eta = document.createElement("span");
+      eta.className = "muted";
+      eta.textContent = j.eta_seconds != null ? "Mancano " + fmtEta(j.eta_seconds) : "";
+      line.append(eta);
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      bar.innerHTML = "<div></div>";
+      bar.firstChild.style.width = Math.round(100 * (j.fraction || 0)) + "%";
+      li.append(bar);
+      const stop = document.createElement("button");
+      stop.type = "button"; stop.className = "link small"; stop.textContent = "Interrompi";
+      stop.onclick = () => api(`/api/jobs/${j.id}/cancel`, { method: "POST" });
+      li.append(stop);
+    } else {
+      text.className = j.status === "done" ? "ok" : (j.status === "failed" ? "err" : "");
+      text.textContent = j.status === "done" ? `Scaricato: ${j.result.video}. Lo trovi qui sotto, tra i tuoi video.`
+        : (j.message || "Interrotto.");
+      const close = document.createElement("button");
+      close.type = "button"; close.className = "link small"; close.textContent = "Nascondi";
+      close.onclick = () => { dismissed.add(j.id); renderDownloads(); };
+      line.append(close);
+    }
+    list.append(li);
+  }
+}
+
+async function submitLink(e) {
+  e.preventDefault();
+  const url = $("#link").value.trim();
+  if (!url) return;
+  const browser = $("#needs-login").checked ? $("#browser").value : null;
+  try {
+    await api("/api/download", { method: "POST", body: { url, browser } });
+    $("#link").value = "";
+    await refreshJobs();
+  } catch (err) {
+    $("#upload-status").textContent = err.message;
+  }
+}
+
 // --- Polling -------------------------------------------------------------
 
 let lastJobsKey = "";
@@ -285,6 +346,7 @@ async function refreshJobs() {
     const key = state.jobs.map(j => j.id + j.status).join();
     if (key !== lastJobsKey) { lastJobsKey = key; await refreshVideos(false); }
     renderVideos();
+    renderDownloads();
   } catch { /* shown by the session banner, or transient */ }
 }
 async function refreshVideos(render = true) {
@@ -307,6 +369,10 @@ function wire() {
   $("#quality").value = pref.get("quality", "accurate");
   $("#quality").onchange = () => pref.set("quality", $("#quality").value);
   $("#file-input").onchange = e => uploadAll([...e.target.files]);
+  $("#link-form").onsubmit = submitLink;
+  $("#needs-login").onchange = () => { $("#browser-field").hidden = !$("#needs-login").checked; };
+  $("#browser").value = pref.get("browser", /Mac/.test(navigator.platform) ? "chrome" : "edge");
+  $("#browser").onchange = () => pref.set("browser", $("#browser").value);
   const drop = $("#drop");
   drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");

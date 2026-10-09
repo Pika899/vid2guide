@@ -58,14 +58,14 @@ try {
     Write-Host "Cartella: $Root"
 
     # --- 1. winget ------------------------------------------------------------
-    Step "1/5 winget (gestore dei pacchetti di Windows)"
+    Step "1/6 winget (gestore dei pacchetti di Windows)"
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
         throw "winget non trovato. Installa 'Programma di installazione app' (App Installer) dal Microsoft Store, poi rilancia questo file."
     }
     Ok "presente"
 
     # --- 2. Python ------------------------------------------------------------
-    Step "2/5 Python"
+    Step "2/6 Python"
     $py = @(Find-Python)
     if ($py.Count -eq 0) {
         Write-Host "    Nessun Python compatibile (serve 3.10-3.13). Installo Python 3.12..."
@@ -79,7 +79,7 @@ try {
     Ok "$ver"
 
     # --- 3. FFmpeg ------------------------------------------------------------
-    Step "3/5 FFmpeg (estrazione audio)"
+    Step "3/6 FFmpeg (estrazione audio)"
     if ((Get-Command ffmpeg -ErrorAction SilentlyContinue) -and (Get-Command ffprobe -ErrorAction SilentlyContinue)) {
         Ok "già installato"
     } else {
@@ -91,8 +91,22 @@ try {
         Ok "installato"
     }
 
-    # --- 4. Python environment and dependencies -------------------------------
-    Step "4/5 Ambiente Python e dipendenze (~1 GB, può richiedere diversi minuti)"
+    # --- 4. Deno (JavaScript runtime yt-dlp needs for YouTube links) ---------
+    Step "4/6 Deno (serve per scaricare dai link di YouTube)"
+    if (Get-Command deno -ErrorAction SilentlyContinue) {
+        Ok "già installato"
+    } else {
+        try {
+            Winget-Install "DenoLand.Deno" "Installazione di Deno"
+            Ok "installato"
+        } catch {
+            # Not fatal: everything else works, and YouTube links mostly still do.
+            Warn "non installato: i link di YouTube potrebbero non funzionare del tutto (dettagli in install.log)"
+        }
+    }
+
+    # --- 5. Python environment and dependencies -------------------------------
+    Step "5/6 Ambiente Python e dipendenze (~1 GB, può richiedere diversi minuti)"
     $venvPy = Join-Path $Root ".venv\Scripts\python.exe"
     if (-not (Test-Path $venvPy)) {
         Run $pyExe ($pyArgs + @("-m", "venv", ".venv")) "Creazione dell'ambiente .venv"
@@ -101,10 +115,10 @@ try {
     Run $venvPy @("-m", "pip", "install", "-r", "requirements.txt") "Installazione delle dipendenze"
     Ok "dipendenze installate"
 
-    # --- 5. Final check -------------------------------------------------------
-    Step "5/5 Verifica"
+    # --- 6. Final check -------------------------------------------------------
+    Step "6/6 Verifica"
     $ErrorActionPreference = "Continue"
-    & $venvPy -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
+    & $venvPy -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring, yt_dlp; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
     if ($LASTEXITCODE -ne 0) { throw "Verifica delle dipendenze non riuscita" }
     $ff = (& ffmpeg -version | Select-Object -First 1)
     $ErrorActionPreference = "Stop"

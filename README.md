@@ -7,6 +7,8 @@ riferimento porta il timestamp `[HH:MM:SS]` del punto esatto del video.
 
 Si usa dal browser, con un doppio clic: niente terminale.
 
+**Guida all'uso illustrata (PDF):** [docs/vid2guide - Guida all'uso.pdf](docs/vid2guide%20-%20Guida%20all'uso.pdf)
+
 ```
 I tuoi video ──▶ Trascrivi (sul tuo computer, gratis) ──▶ Crea guida (con la tua chiave API) ──▶ PDF
 ```
@@ -56,8 +58,11 @@ L'installazione scarica circa 1 GB e richiede qualche minuto.
 2. **Chiave API**: la prima volta, apri **Impostazioni** e incolla la chiave di Anthropic
    o di OpenAI. Viene verificata e salvata nel portachiavi del sistema (Portachiavi su
    Mac, Gestione credenziali su Windows), mai nei file del programma.
-3. **Aggiungi i video**: trascinali nella pagina, oppure usa «Apri la cartella video» e
-   copiali lì.
+3. **Aggiungi i video**: trascinali nella pagina, usa «Apri la cartella video» e copiali
+   lì, oppure **incolla il link** di un video (YouTube, Vimeo, Loom e molti altri siti) e
+   premi «Scarica». Per i corsi privati spunta «Il video richiede l'accesso» e scegli il
+   browser in cui hai già fatto l'accesso. Scarica solo video che hai il diritto di
+   scaricare: molte piattaforme, YouTube compreso, lo vietano nei loro termini.
 4. **Trascrivi**: scegli la qualità («Precisa» è consigliata) e, se vuoi, scrivi i nomi
    propri del corso (strumenti, persone, marchi): aiutano Whisper a scriverli giusti.
    La pagina mostra l'avanzamento e il tempo stimato, misurato sulla velocità reale.
@@ -114,6 +119,9 @@ Questa è una versione di prova. Cose da sapere:
   compare ancora più tardi, o è coperto (per esempio dalla webcam del docente), la guida lo
   segnala come non visibile o parziale: il timestamp resta, per guardarlo nel video. Al
   massimo 30 prompt per guida.
+- **Link**: lo scaricamento usa [yt-dlp](https://github.com/yt-dlp/yt-dlp), che vid2guide
+  aggiorna da solo a ogni avvio. Alcune piattaforme di corsi non sono supportate
+  direttamente: spesso funziona il link del video incorporato (Loom, Vimeo).
 - **Video riservati**: per creare la guida, trascrizione e fotogrammi vengono inviati al
   servizio scelto (Anthropic o OpenAI). Valuta se è accettabile per i tuoi contenuti.
 - **Uso lecito**: usa vid2guide solo su video che hai il diritto di elaborare (vedi sotto).
@@ -139,7 +147,8 @@ dettaglio.
 ```
 start-mac.command / start-windows.bat     avvio dell'interfaccia (doppio clic)
 install-mac.command / install-windows.bat installazione (doppio clic)
-app/                      interfaccia locale: server, pagina, generazione delle guide
+app/                      interfaccia locale: server, pagina, link, generazione delle guide
+docs/                     guida all'uso illustrata (Markdown e PDF)
   guide/system_prompt.md    le regole date al modello per scrivere la guida
   guide/pricing.json        prezzi dei modelli usati per il calcolo dei costi
 main_pipeline.py          la pipeline di trascrizione (estrazione, chunking, Whisper)

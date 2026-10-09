@@ -20,7 +20,7 @@ from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import keys, library, transcribe
+from . import download, keys, library, transcribe
 from .guide import build as guide_build
 from .guide.providers import ProviderError, make, models_for
 from .jobs import JobManager
@@ -155,6 +155,24 @@ def start_transcription(video: str = Body(..., embed=True), quality: str = Body(
     return jobs.submit("transcribe", v.name, work).public()
 
 
+@app.post("/api/download")
+def start_download(url: str = Body(..., embed=True), browser: str | None = Body(None, embed=True)):
+    try:
+        url = download.check_url(url)
+        download.build_command(url, browser)          # validates the browser choice
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+    def work(job):
+        def update(p: download.DownloadProgress):
+            job.phase, job.fraction, job.eta_seconds = p.phase, p.fraction, p.eta
+        path = download.run(url, browser, update, job.cancel)
+        job.phase = "Completato"
+        return {"video": path.name}
+
+    return jobs.submit("download", url, work).public()
+
+
 # --- Guides ---------------------------------------------------------------
 
 def _provider(provider: str, model: str):
@@ -237,6 +255,7 @@ def main() -> None:
     import uvicorn
     logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(message)s", datefmt="%H:%M:%S")
     ensure_dirs()
+    download.update_in_background()
     port = PORT or _free_port()
     url = f"http://127.0.0.1:{port}/#t={TOKEN}"
     print("\n  vid2guide è attivo. Se il browser non si apre da solo, apri questo indirizzo:")

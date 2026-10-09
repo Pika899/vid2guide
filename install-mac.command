@@ -33,7 +33,7 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
 fi
 
 # --- 1. Homebrew ------------------------------------------------------------
-say_step "1/5 Homebrew (gestore dei pacchetti)"
+say_step "1/6 Homebrew (gestore dei pacchetti)"
 load_brew() {
   for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
     if [[ -x "$b" ]]; then eval "$("$b" shellenv)"; return 0; fi
@@ -53,7 +53,7 @@ fi
 # --- 2. Python 3.10-3.13 ----------------------------------------------------
 # Whisper and PyTorch publish wheels for these versions; outside the range
 # pip may try to compile from source and fail.
-say_step "2/5 Python"
+say_step "2/6 Python"
 python_ok() {
   "$1" -c 'import sys; sys.exit(0 if (3,10) <= sys.version_info[:2] <= (3,13) else 1)' 2>/dev/null
 }
@@ -76,7 +76,7 @@ fi
 say_ok "$("$PY" --version) ($PY)"
 
 # --- 3. FFmpeg --------------------------------------------------------------
-say_step "3/5 FFmpeg (estrazione audio)"
+say_step "3/6 FFmpeg (estrazione audio)"
 if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
   say_ok "già installato"
 else
@@ -85,8 +85,19 @@ else
   say_ok "installato"
 fi
 
-# --- 4. Python environment and dependencies ---------------------------------
-say_step "4/5 Ambiente Python e dipendenze (~1 GB, può richiedere diversi minuti)"
+# --- 4. Deno (JavaScript runtime yt-dlp needs for YouTube links) -------------
+say_step "4/6 Deno (serve per scaricare dai link di YouTube)"
+if command -v deno >/dev/null 2>&1; then
+  say_ok "già installato"
+elif brew install deno >>"$LOG" 2>&1; then
+  say_ok "installato"
+else
+  # Not fatal: everything else works, and YouTube links mostly still do.
+  say_warn "non installato: i link di YouTube potrebbero non funzionare del tutto (dettagli in $LOG)"
+fi
+
+# --- 5. Python environment and dependencies ---------------------------------
+say_step "5/6 Ambiente Python e dipendenze (~1 GB, può richiedere diversi minuti)"
 if [[ -x .venv/bin/python ]] && ! python_ok .venv/bin/python; then
   say_warn "l'ambiente .venv esistente usa un Python non compatibile: lo ricreo"
   rm -rf .venv
@@ -98,9 +109,9 @@ fi
 .venv/bin/python -m pip install -r requirements.txt >>"$LOG" 2>&1
 say_ok "dipendenze installate"
 
-# --- 5. Final check ---------------------------------------------------------
-say_step "5/5 Verifica"
-.venv/bin/python -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
+# --- 6. Final check ---------------------------------------------------------
+say_step "6/6 Verifica"
+.venv/bin/python -c "import whisper, torch, markdown, fastapi, uvicorn, anthropic, openai, keyring, yt_dlp; print('    OK whisper + torch', torch.__version__, '+ interfaccia')"
 ffmpeg -version 2>&1 | sed -n '1s/^/    OK /p'
 if [[ -d "/Applications/Google Chrome.app" || -d "/Applications/Chromium.app" ]]; then
   say_ok "Chrome trovato (serve per esportare le guide in PDF)"

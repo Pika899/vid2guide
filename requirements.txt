@@ -22,3 +22,6 @@ uvicorn>=0.29
 anthropic>=1.13
 openai>=3.28
 keyring>=25
+
+# Scaricamento dai link (YouTube, Vimeo, Loom...). L'app lo aggiorna da sola all'avvio.
+yt-dlp[default]>=2026.8.19

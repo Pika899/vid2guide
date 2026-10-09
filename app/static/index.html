@@ -37,6 +37,35 @@
         </div>
         <p id="upload-status" class="muted small" aria-live="polite"></p>
       </div>
+      <form id="link-form" class="link-form">
+        <label class="field">
+          <span>Oppure incolla il link di un video (YouTube, Vimeo, Loom…)</span>
+          <div class="row nowrap">
+            <input id="link" type="url" inputmode="url" placeholder="https://…" autocomplete="off" spellcheck="false">
+            <button class="btn" type="submit">Scarica</button>
+          </div>
+        </label>
+        <label class="check small">
+          <input id="needs-login" type="checkbox">
+          Il video richiede l'accesso (corso privato o a pagamento)
+        </label>
+        <label id="browser-field" class="field small" hidden>
+          <span>Browser in cui hai già fatto l'accesso al sito</span>
+          <select id="browser">
+            <option value="chrome">Chrome</option>
+            <option value="edge">Edge</option>
+            <option value="firefox">Firefox</option>
+            <option value="safari">Safari</option>
+            <option value="brave">Brave</option>
+          </select>
+          <small class="muted">vid2guide usa il tuo accesso solo per scaricare questo video, sul tuo
+            computer. Il sistema potrebbe chiederti il permesso di leggere i dati del browser.</small>
+        </label>
+        <p class="small muted">Scarica solo video che hai il diritto di scaricare: i tuoi, o quelli la cui
+          licenza o piattaforma lo permette. Molte piattaforme, tra cui YouTube, lo vietano nei loro
+          termini di servizio.</p>
+        <ul id="downloads" class="downloads"></ul>
+      </form>
     </section>
 
     <section class="card" aria-labelledby="opt-title">
