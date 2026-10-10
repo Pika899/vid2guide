@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -117,6 +118,15 @@ def update_in_background() -> None:
     threading.Thread(target=work, daemon=True, name="yt-dlp-update").start()
 
 
+def _free_name(path: Path) -> Path:
+    """`path`, or "name (2).ext", "name (3).ext"... if it is already taken."""
+    n, candidate = 2, path
+    while candidate.exists():
+        candidate = path.with_name(f"{path.stem} ({n}){path.suffix}")
+        n += 1
+    return candidate
+
+
 def check_url(url: str) -> str:
     url = (url or "").strip()
     p = urlparse(url)
@@ -131,7 +141,10 @@ def build_command(url: str, browser: str | None) -> list[str]:
         # --print below implies --quiet, which also hides progress: --progress
         # brings the progress lines back.
         "--no-playlist", "--newline", "--no-colors", "--progress",
-        "--windows-filenames", "--trim-filenames", "120",
+        # No --windows-filenames: it also rewrites the folders in -P, so a parent
+        # folder ending in a space ("AGENCY /") became another folder ("AGENCY#").
+        # On Windows yt-dlp already makes file names Windows-safe by itself.
+        "--trim-filenames", "120",
         # Up to 1080p, preferring H.264 + AAC in MP4: readable slides, and a
         # format every ffmpeg build can seek in for screenshots.
         "-f", "bv*+ba/b", "-S", "res:1080,vcodec:h264,acodec:m4a",
@@ -185,8 +198,13 @@ def run(url: str, browser: str | None, on_update: Callable[[DownloadProgress], N
     if proc.returncode != 0 or progress.file is None:
         raise RuntimeError(progress.error_message())
     path = progress.file
-    if path.parent.resolve() != INPUT_DIR.resolve() or not path.is_file():
-        raise RuntimeError("Lo scaricamento è finito ma il file non è nella cartella dei video.")
+    if not path.is_file():
+        raise RuntimeError("Lo scaricamento è finito ma non trovo il file scaricato.")
+    if path.parent.resolve() != INPUT_DIR.resolve():
+        # Never leave the user to move files by hand: bring it where it belongs.
+        target = _free_name(INPUT_DIR / path.name)
+        shutil.move(str(path), target)
+        path = target
     progress.phase = "Completato"
     on_update(progress)
     return path

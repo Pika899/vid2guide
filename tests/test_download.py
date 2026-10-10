@@ -96,3 +96,32 @@ def test_download_failure_is_readable(tmp_path):
     finally:
         server.shutdown()
     assert "non è disponibile" in str(exc.value)
+
+
+@pytest.mark.skipif(not HAS_FFMPEG, reason="ffmpeg non installato")
+def test_folder_name_ending_with_space(tmp_path, monkeypatch):
+    """Regression: the project lived in "AGENCY /" and the video landed in "AGENCY#/"."""
+    base = tmp_path / "AGENCY " / "vid2guide"
+    monkeypatch.setattr(download, "INPUT_DIR", base / "input_videos")
+    monkeypatch.setattr(download, "TEMP_DIR", base / "temp_chunks")
+    src = tmp_path / "srv"
+    src.mkdir()
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=160x90:rate=5",
+                    "-t", "2", "-c:v", "libx264", str(src / "clip.mp4")], check=True)
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(src))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        path = download.run(f"http://127.0.0.1:{server.server_port}/clip.mp4", None,
+                            lambda p: None, threading.Event())
+    finally:
+        server.shutdown()
+    assert path.parent == base / "input_videos" and path.is_file()
+    assert not (tmp_path / "AGENCY#").exists()
+
+
+def test_free_name(tmp_path):
+    (tmp_path / "a.mp4").write_bytes(b"")
+    (tmp_path / "a (2).mp4").write_bytes(b"")
+    assert download._free_name(tmp_path / "a.mp4").name == "a (3).mp4"
+    assert download._free_name(tmp_path / "b.mp4").name == "b.mp4"
