@@ -5,7 +5,7 @@ Every statement carries the timestamp it comes from.
 The transcript is one line per segment, `[HH:MM:SS] text`, produced by Whisper (automatic
 speech recognition). Header lines start with `#`.
 
-Write the guide in the language the lesson is spoken in.
+Write the guide in the language the lesson is spoken in, including every note.
 
 ## Fields to produce
 
@@ -29,8 +29,9 @@ Write the guide in the language the lesson is spoken in.
   lines what the prompt is for. Do not write the prompt text here: it is read later from
   the video frames.
 - `frameworks`: operational, reusable material given **by voice**: step-by-step schemes,
-  checklists, selection criteria, tool settings. `content` reports it faithfully; use a
-  numbered list when the teacher gives steps.
+  checklists, selection criteria, tool settings. `content` reports it faithfully; when the
+  teacher gives steps, write a numbered list with **one step per line** (a real line break
+  before each number), never several steps on the same line.
 - `to_verify`: passages where the transcript is too noisy to be reliable, with a short note,
   so the student can re-listen. Empty array if none.
 

@@ -46,6 +46,8 @@ def test_settings_never_expose_keys():
     openai = next(p for p in s["providers"] if p["id"] == "openai")
     assert openai["key"] == "…abcd"
     assert "sk-test" not in str(s)
-    assert {m["id"] for m in openai["models"]} == {"gpt-6-astra", "gpt-6.1-sol"}
+    assert {m["id"] for m in openai["models"]} == {"gpt-6-astra", "gpt-6.1-sol", "gpt-6-luna"}
+    anthropic = next(p for p in s["providers"] if p["id"] == "anthropic")
+    assert [m["id"] for m in anthropic["models"]] == ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
     assert client.delete("/api/keys/openai", headers=H).status_code == 200
     assert keys.get("openai") is None

@@ -39,6 +39,7 @@ class FakeProvider:
     def vision(self, system, parts, schema, max_tokens=8000):
         images = [p for p in parts if isinstance(p, bytes)]
         self.vision_calls.append(len(images))
+        assert "Write `note` in Italian." in parts[0]        # transcript header says "Lingua: it"
         assert all(i[:2] == b"\xff\xd8" for i in images)        # real JPEG frames
         reply = self.replies.pop(0) if self.replies else \
             {"best_frame": 2, "visibility": "complete", "text": "Agisci come un esperto.", "note": ""}

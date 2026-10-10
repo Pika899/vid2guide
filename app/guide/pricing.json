@@ -1,13 +1,19 @@
 {
-  "_note": "USD per 1M tokens. Update when providers change prices; the app shows costs computed from these values and the token counts returned by the API.",
+  "_note": "USD per 1M tokens. Update when providers change prices; the app shows costs computed from these values and the token counts returned by the API. 'long' = higher price for long requests: above_input_tokens is the documented threshold per request, null when the provider does not publish it (the app then uses the standard price and says the cost may be higher).",
   "anthropic": {
-    "_verified": "2026-10-06, Anthropic first-party API price list",
+    "_verified": "2026-10-10, Anthropic first-party API price list",
     "claude-opus-5-5": {"label": "Claude Opus 5.5 — massima qualità", "input": 4.0, "output": 20.0},
-    "claude-sonnet-5-5": {"label": "Claude Sonnet 5.5 — più economico", "input": 2.0, "output": 10.0}
+    "claude-sonnet-5-5": {"label": "Claude Sonnet 5.5 — equilibrato", "input": 2.0, "output": 10.0},
+    "claude-haiku-5-5": {"label": "Claude Haiku 5.5 — il più economico", "input": 0.10, "output": 0.50,
+                         "long": {"above_input_tokens": 100000, "input": 0.50, "output": 2.50}}
   },
   "openai": {
-    "_verified": "2026-10-09, platform.openai.com/docs/models",
-    "gpt-6-astra": {"label": "GPT-6 Astra — massima qualità", "input": 10.0, "output": 50.0},
-    "gpt-6.1-sol": {"label": "GPT-6.1 Sol — più economico", "input": 2.0, "output": 10.0}
+    "_verified": "2026-10-10, platform.openai.com/docs/pricing (Standard)",
+    "gpt-6-astra": {"label": "GPT-6 Astra — massima qualità", "input": 10.0, "output": 50.0,
+                    "long": {"above_input_tokens": null, "input": 20.0, "output": 75.0}},
+    "gpt-6.1-sol": {"label": "GPT-6.1 Sol — equilibrato", "input": 2.0, "output": 10.0,
+                    "long": {"above_input_tokens": null, "input": 4.0, "output": 15.0}},
+    "gpt-6-luna": {"label": "GPT-6 Luna — il più economico", "input": 0.10, "output": 0.50,
+                   "long": {"above_input_tokens": null, "input": 0.20, "output": 0.75}}
   }
 }

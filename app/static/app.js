@@ -215,7 +215,8 @@ function renderVideos() {
       msg.className = "video-msg small ok";
       msg.textContent = `Guida pronta: ${m.index_entries} voci nell'indice, ${m.screen_prompts} prompt a schermo. ` +
         `Costo: ${fmtUsd(m.cost_usd)} (${m.input_tokens.toLocaleString("it")} token in entrata, ${m.output_tokens.toLocaleString("it")} in uscita` +
-        (m.screenshots && m.screenshots.calls ? `; di cui screenshot: ${fmtUsd(m.screenshots.cost_usd)}` : "") + ").";
+        (m.screenshots && m.screenshots.calls ? `; di cui screenshot: ${fmtUsd(m.screenshots.cost_usd)}` : "") + ")." +
+        (m.cost_may_be_higher ? " Calcolato con il prezzo standard: per richieste molto lunghe il servizio può applicare un prezzo più alto." : "");
     } else if (state.messages[v.name]) {
       msg.className = "video-msg small err"; msg.textContent = state.messages[v.name];
     }
@@ -260,7 +261,8 @@ async function startGuide(v) {
       `${est.input_tokens.toLocaleString("it")} token, ${fmtUsd(est.input_cost)}.`;
     $(".out", body).textContent = "In più: il testo della guida scritto dal modello" +
       (est.output_price_per_mtok != null ? ` (${fmtUsd(est.output_price_per_mtok / 100)} ogni 10.000 token)` : "") +
-      " e la lettura degli screenshot dei prompt, uno per ogni prompt mostrato a schermo.";
+      " e la lettura degli screenshot dei prompt, uno per ogni prompt mostrato a schermo." +
+      (est.may_cost_more ? " Prezzi standard: per richieste molto lunghe il servizio può applicare un prezzo più alto." : "");
     $("#confirm-ok").disabled = false;
   } catch (e) {
     body.innerHTML = "<p class='small' style='color:var(--err)'></p>";

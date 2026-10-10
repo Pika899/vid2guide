@@ -89,3 +89,17 @@ def test_pdf_filename():
     assert len(name) <= 80
     assert _safe_filename("  ...  ", "fallback") == "fallback"
     assert _safe_filename("A/B: c?", "x") == "A B c"
+
+
+
+def test_pricing_tiers():
+    from app.guide.providers import Usage, input_cost
+    # Haiku: documented higher price above 100K input tokens per request.
+    assert Usage("claude-haiku-5-5", 100_000, 1_000).cost == (100_000 * 0.10 + 1_000 * 0.50) / 1e6
+    assert Usage("claude-haiku-5-5", 100_001, 1_000).cost == (100_001 * 0.50 + 1_000 * 2.50) / 1e6
+    assert not Usage("claude-haiku-5-5").may_cost_more
+    # OpenAI: long-context price exists but its threshold is not published.
+    assert Usage("gpt-6-luna", 500_000, 0).cost == 500_000 * 0.10 / 1e6
+    assert Usage("gpt-6-luna").may_cost_more and not Usage("claude-opus-5-5").may_cost_more
+    assert input_cost("claude-sonnet-5-5", 1_000_000) == 2.0
+    assert Usage("modello-sconosciuto", 10, 10).cost is None

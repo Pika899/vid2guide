@@ -28,11 +28,34 @@ class Usage:
 
     @property
     def cost(self) -> float | None:
-        for table in PRICING.values():
-            if isinstance(table, dict) and self.model in table:
-                p = table[self.model]
-                return (self.input_tokens * p["input"] + self.output_tokens * p["output"]) / 1e6
+        p = _rates(self.model, self.input_tokens)
+        if p is None:
+            return None
+        return (self.input_tokens * p["input"] + self.output_tokens * p["output"]) / 1e6
+
+    @property
+    def may_cost_more(self) -> bool:
+        """True when a long-request price exists but its threshold is not published."""
+        p = _price(self.model)
+        return bool(p and "long" in p and p["long"]["above_input_tokens"] is None)
+
+
+def _price(model: str) -> dict | None:
+    for table in PRICING.values():
+        if isinstance(table, dict) and model in table:
+            return table[model]
+    return None
+
+
+def _rates(model: str, input_tokens: int) -> dict | None:
+    """Prices for one request: the long-request tier applies above its threshold."""
+    p = _price(model)
+    if p is None:
         return None
+    long = p.get("long")
+    if long and long["above_input_tokens"] is not None and input_tokens > long["above_input_tokens"]:
+        return long
+    return p
 
 
 def models_for(provider: str) -> list[dict]:
@@ -42,17 +65,13 @@ def models_for(provider: str) -> list[dict]:
 
 
 def input_cost(model: str, tokens: int) -> float | None:
-    for table in PRICING.values():
-        if isinstance(table, dict) and model in table:
-            return tokens * table[model]["input"] / 1e6
-    return None
+    p = _rates(model, tokens)
+    return None if p is None else tokens * p["input"] / 1e6
 
 
-def output_price(model: str) -> float | None:
-    for table in PRICING.values():
-        if isinstance(table, dict) and model in table:
-            return table[model]["output"]
-    return None
+def output_price(model: str, input_tokens: int = 0) -> float | None:
+    p = _rates(model, input_tokens)
+    return None if p is None else p["output"]
 
 
 # A "part" for vision calls is either a str (text) or bytes (a JPEG image).
@@ -100,17 +119,22 @@ class AnthropicProvider:
         return ProviderError(str(exc))
 
     def _call(self, system: str, content: list[dict], schema: dict, max_tokens: int, effort: str):
+        params = dict(
+            model=self.model,
+            max_tokens=max_tokens,
+            system=system,
+            output_config={"effort": effort,
+                           "format": {"type": "json_schema", "schema": schema}},
+            messages=[{"role": "user", "content": content}],
+        )
         try:
-            with self.client.beta.messages.stream(
-                model=self.model,
-                max_tokens=max_tokens,
-                betas=self._BETAS,
-                fallbacks="default",
-                system=system,
-                output_config={"effort": effort,
-                               "format": {"type": "json_schema", "schema": schema}},
-                messages=[{"role": "user", "content": content}],
-            ) as stream:
+            # Haiku has no server-side refusal fallback: send it the plain request.
+            if self.model.startswith("claude-haiku"):
+                stream_ctx = self.client.messages.stream(**params)
+            else:
+                stream_ctx = self.client.beta.messages.stream(
+                    **params, betas=self._BETAS, fallbacks="default")
+            with stream_ctx as stream:
                 msg = stream.get_final_message()
         except self._anthropic.AnthropicError as exc:
             raise self._errors(exc) from exc

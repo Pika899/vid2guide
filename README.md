@@ -82,14 +82,22 @@ e, rilanciando, riparte da dove si era fermato.
   prompt mostrati a schermo (ogni prompt richiede la lettura di 4 fotogrammi, 8 se serve la seconda ricerca). I prezzi
   per milione di token usati dall'app sono in `app/guide/pricing.json`, con la data in cui
   sono stati verificati. I modelli «più economici» costano circa la metà o meno.
-- **Esempi misurati** (10 ottobre 2026, Claude Sonnet 5.5):
-  - registrazione di 29 minuti senza prompt a schermo: 17.447 token in entrata e 7.064 in
-    uscita, **0,11 $**;
-  - lezione di 19 minuti con 7 prompt a schermo: 49.703 token in entrata e 10.041 in
-    uscita, **0,20 $**.
+- **Modelli**: per ogni servizio ci sono tre livelli, «massima qualità», «equilibrato» e
+  «il più economico» (Claude Opus / Sonnet / Haiku 5.5; GPT-6 Astra / GPT-6.1 Sol /
+  GPT-6 Luna).
+- **Esempi misurati** (10 ottobre 2026):
+  - registrazione di 29 minuti senza prompt a schermo, Claude Sonnet 5.5: 17.447 token in
+    entrata e 7.064 in uscita, **0,11 $**;
+  - lezione di 19 minuti con prompt a schermo, Claude Sonnet 5.5: 49.703 token in entrata e
+    10.041 in uscita, **0,20 $**;
+  - la stessa lezione con Claude Haiku 5.5: 94.314 token in entrata e 38.967 in uscita,
+    **0,03 $**. Nessun riferimento inventato; i prompt letti dagli screenshot, verificati a
+    mano, sono identici al testo a schermo.
 
-  Con Claude Opus 5.5 lo stesso consumo costa il doppio. Lezioni più lunghe e con più
-  prompt a schermo costano di più.
+  Con Claude Opus 5.5 lo stesso consumo di Sonnet costa il doppio. Lezioni più lunghe e con
+  più prompt a schermo costano di più. Con OpenAI il costo mostrato usa il prezzo standard:
+  per richieste molto lunghe OpenAI applica un prezzo più alto, con una soglia che non
+  pubblica nella pagina dei prezzi.
 
 ### Come la guida resta affidabile
 

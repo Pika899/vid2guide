@@ -38,6 +38,15 @@ _RANK = {"complete": 3, "partial": 2, "illegible": 1, "not_visible": 0}
 
 Progress = Callable[[str, float], None]
 
+_LANGUAGES = {"it": "Italian", "en": "English", "es": "Spanish", "fr": "French",
+              "de": "German", "pt": "Portuguese"}
+
+
+def _language(t: Transcript) -> str:
+    """Lesson language from the transcript header ("Lingua: it")."""
+    code = (t.header_value("Lingua") or "").lower()
+    return _LANGUAGES.get(code, "the language spoken in the lesson")
+
 
 def _user_text(t: Transcript) -> str:
     return ("Here is the full transcript. Produce the study guide.\n\n"
@@ -53,7 +62,8 @@ def estimate(provider, video_name: str) -> dict:
         tokens = (len(SYSTEM_PROMPT) + len(text)) // 3   # rough: ~3 characters per token
     return {"input_tokens": tokens, "exact": exact,
             "input_cost": input_cost(provider.model, tokens),
-            "output_price_per_mtok": output_price(provider.model)}
+            "output_price_per_mtok": output_price(provider.model, tokens),
+            "may_cost_more": Usage(provider.model).may_cost_more}
 
 
 def _safe_filename(title: str, fallback: str) -> str:
@@ -98,7 +108,7 @@ def build(provider, video_path: Path | None, video_name: str, on_progress: Progr
             on_progress(f"Lettura dei prompt a schermo {n} di {len(moments)}",
                         0.55 + 0.35 * (n - 1) / max(1, len(moments)))
             shots.append(_screenshot(provider, video_path, m, n, duration,
-                                     Path(tmp), img_dir, slug, usages))
+                                     Path(tmp), img_dir, slug, usages, _language(t)))
     if len(guide["screen_prompts"]) > MAX_SCREEN_PROMPTS:
         for m in guide["screen_prompts"][MAX_SCREEN_PROMPTS:]:
             shots.append({"timestamp": m["timestamp"], "title": m["title"],
@@ -135,6 +145,7 @@ def build(provider, video_path: Path | None, video_name: str, on_progress: Progr
         "input_tokens": sum(u.input_tokens for u in usages),
         "output_tokens": sum(u.output_tokens for u in usages),
         "cost_usd": None if None in costs else round(sum(costs), 4),
+        "cost_may_be_higher": any(u.may_cost_more for u in usages),
         # usages[0] is the transcript analysis, the rest are screenshot readings.
         "analysis": {"input_tokens": usages[0].input_tokens, "output_tokens": usages[0].output_tokens,
                      "cost_usd": None if usages[0].cost is None else round(usages[0].cost, 4)},
@@ -164,7 +175,7 @@ def _previous_pdf(video_name: str) -> str | None:
 
 
 def _screenshot(provider, video_path, moment, n, duration, tmp: Path, img_dir: Path,
-                slug: str, usages: list[Usage]) -> dict:
+                slug: str, usages: list[Usage], language: str = "Italian") -> dict:
     shot = {"timestamp": moment["timestamp"], "title": moment["title"],
             "context": moment["spoken_context"]}
     if video_path is None:
@@ -178,7 +189,8 @@ def _screenshot(provider, video_path, moment, n, duration, tmp: Path, img_dir: P
         got = frames.sample(video_path, at, duration, tmp / f"{n:02d}", offsets)
         if not got:
             continue
-        parts: list = [f"The teacher is showing: {moment['title']}. Context: {moment['spoken_context']}"]
+        parts: list = [f"The teacher is showing: {moment['title']}. Context: {moment['spoken_context']}. "
+                       f"Write `note` in {language}."]
         for i, (sec, path) in enumerate(got, 1):
             parts += [f"Frame {i} (at {sec // 3600:02d}:{sec % 3600 // 60:02d}:{sec % 60:02d})",
                       path.read_bytes()]

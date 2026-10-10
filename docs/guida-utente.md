@@ -144,9 +144,10 @@ Poi premi **Trascrivi** accanto al video.
 
 Quando il video è **Trascritto**:
 
-1. nelle **Opzioni** scegli il **servizio** (Anthropic o OpenAI) e il **modello**. Quello
-   «più economico» costa circa la metà o meno, quello «massima qualità» scrive guide più
-   accurate;
+1. nelle **Opzioni** scegli il **servizio** (Anthropic o OpenAI) e il **modello**: ci sono
+   tre livelli, «massima qualità», «equilibrato» e «il più economico». Il più economico
+   costa molto meno ed è un buon punto di partenza; se la guida ti sembra incompleta,
+   rifalla con un livello superiore;
 2. premi **Crea guida**;
 3. vid2guide ti mostra il costo previsto per la lettura della trascrizione. Conferma con
    **Crea la guida**.
@@ -154,15 +155,16 @@ Quando il video è **Trascritto**:
 La guida richiede qualche minuto. Prima legge tutta la trascrizione, poi cerca e legge i
 prompt mostrati a schermo. Alla fine vedi il **costo effettivo**, calcolato sui consumi reali.
 
-**Quanto costa.** Due esempi misurati con Claude Sonnet 5.5 («più economico»):
+**Quanto costa.** Esempi misurati:
 
-| Video | Prompt a schermo | Costo |
+| Video | Modello | Costo |
 |---|---|---|
-| Registrazione di 29 minuti | nessuno | 0,11 $ |
-| Lezione di 19 minuti | 7 | 0,20 $ |
+| Registrazione di 29 minuti, senza prompt a schermo | Claude Sonnet 5.5 («equilibrato») | 0,11 $ |
+| Lezione di 19 minuti con prompt a schermo | Claude Sonnet 5.5 («equilibrato») | 0,20 $ |
+| La stessa lezione di 19 minuti | Claude Haiku 5.5 («il più economico») | 0,03 $ |
 
-Lezioni più lunghe o con più prompt costano di più. Con i modelli «massima qualità» il
-costo è più alto: con Claude Opus 5.5, per esempio, è il doppio.
+Lezioni più lunghe o con più prompt costano di più. Claude Opus 5.5 («massima qualità»)
+costa il doppio di Sonnet.
 
 ---
 
