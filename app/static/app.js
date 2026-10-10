@@ -70,9 +70,12 @@ function fillModels() {
   const p = state.settings.providers.find(x => x.id === $("#provider").value);
   const sel = $("#model");
   sel.innerHTML = "";
-  for (const m of p?.models || []) sel.append(new Option(m.label, m.id));
+  for (const m of p?.models || []) sel.append(new Option(m.label + (m.default ? " (consigliato)" : ""), m.id));
+  // The last model the person used wins; otherwise the recommended one.
   const saved = pref.get("model-" + p?.id, "");
+  const fallback = (p?.models || []).find(m => m.default)?.id;
   if ([...sel.options].some(o => o.value === saved)) sel.value = saved;
+  else if (fallback) sel.value = fallback;
 }
 
 const KEY_LINKS = {
@@ -88,7 +91,7 @@ function renderKeys() {
     el.className = "key";
     el.innerHTML = `
       <div class="key-head"><strong></strong><span class="small muted status"></span></div>
-      <label class="field"><span>Nuova chiave</span><input type="password" autocomplete="off" spellcheck="false"></label>
+      <label class="field"><span>Nuova chiave</span><input type="password" name="key-${p.id}" autocomplete="off" spellcheck="false"></label>
       <div class="row">
         <button type="button" class="btn small save">Salva e verifica</button>
         <button type="button" class="btn ghost small del">Elimina</button>

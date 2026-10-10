@@ -2,6 +2,7 @@
   "_note": "USD per 1M tokens. Update when providers change prices; the app shows costs computed from these values and the token counts returned by the API. 'long' = higher price for long requests: above_input_tokens is the documented threshold per request, null when the provider does not publish it (the app then uses the standard price and says the cost may be higher).",
   "anthropic": {
     "_verified": "2026-10-10, Anthropic first-party API price list",
+    "_default": "claude-haiku-5-5",
     "claude-opus-5-5": {"label": "Claude Opus 5.5 — massima qualità", "input": 4.0, "output": 20.0},
     "claude-sonnet-5-5": {"label": "Claude Sonnet 5.5 — equilibrato", "input": 2.0, "output": 10.0},
     "claude-haiku-5-5": {"label": "Claude Haiku 5.5 — il più economico", "input": 0.10, "output": 0.50,
@@ -9,6 +10,7 @@
   },
   "openai": {
     "_verified": "2026-10-10, platform.openai.com/docs/pricing (Standard)",
+    "_default": "gpt-6-luna",
     "gpt-6-astra": {"label": "GPT-6 Astra — massima qualità", "input": 10.0, "output": 50.0,
                     "long": {"above_input_tokens": null, "input": 20.0, "output": 75.0}},
     "gpt-6.1-sol": {"label": "GPT-6.1 Sol — equilibrato", "input": 2.0, "output": 10.0,

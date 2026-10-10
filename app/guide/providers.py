@@ -60,7 +60,8 @@ def _rates(model: str, input_tokens: int) -> dict | None:
 
 def models_for(provider: str) -> list[dict]:
     table = PRICING.get(provider, {})
-    return [{"id": k, "label": v["label"], "input": v["input"], "output": v["output"]}
+    return [{"id": k, "label": v["label"], "input": v["input"], "output": v["output"],
+             "default": k == table.get("_default")}
             for k, v in table.items() if not k.startswith("_")]
 
 
