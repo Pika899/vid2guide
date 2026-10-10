@@ -9,9 +9,6 @@
 
 Si usa dal browser, senza scrivere comandi.
 
-> Questa è una **versione di prova**. Se qualcosa non funziona o non è chiaro, segnalalo: è
-> proprio quello che ci serve sapere. Come: **[CANALE PER I FEEDBACK — DA DEFINIRE]**.
-
 ---
 
 ## Prima di iniziare

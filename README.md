@@ -112,7 +112,7 @@ e, rilanciando, riparte da dove si era fermato.
 
 ## Limiti noti
 
-Questa è una versione di prova. Cose da sapere:
+Cose da sapere:
 
 - **Windows**: l'installazione e l'app sono state scritte per Windows ma la prova completa
   su un PC Windows è ancora in corso.
