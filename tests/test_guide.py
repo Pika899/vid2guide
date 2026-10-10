@@ -63,6 +63,7 @@ def test_render_layout_and_visibility_cases():
     assert "Ci torna anche a `[00:00:20]`." in md
     assert "![Completo](img/x/01.jpg)" in md and "~~~~\nAgisci come ```esperto```\n~~~~" in md
     assert "visibile solo in parte" in md
+    assert "fa fede l'immagine" in md
     assert "non è leggibile" in md and "non compare nei fotogrammi" in md
     assert "## Da verificare" in md and "1 riferimenti proposti" in md
 

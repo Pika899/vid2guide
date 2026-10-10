@@ -38,6 +38,10 @@ def render(guide: dict, *, source: str, duration: str, whisper_model: str,
         out.append("")
 
     out += ["## Prompt e framework mostrati", ""]
+    if any(s.get("text", "").strip() for s in shots):
+        # Measured: both models occasionally get a word wrong when reading frames.
+        out += ["> Il testo dei prompt è trascritto dall'AI leggendo lo screenshot e può contenere "
+                "piccoli errori: per i dettagli fa fede l'immagine.", ""]
     if not shots and not guide.get("frameworks"):
         out += ["Nessuno mostrato in questa lezione.", ""]
     for s in shots:

@@ -192,6 +192,9 @@ La guida contiene:
   `[trascrizione incerta: …]`, non corrette in silenzio.
 - Se un prompt è coperto (per esempio dalla webcam del docente) o illeggibile, la guida lo
   dice e lascia il minuto per guardarlo nel video.
+- Il testo dei prompt è trascritto dall'AI leggendo lo screenshot: nelle prove è risultato
+  quasi sempre identico, ma può sbagliare qualche parola. Per i dettagli fa fede
+  l'immagine, che è subito sopra.
 
 ---
 
